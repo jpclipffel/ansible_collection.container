@@ -1,0 +1,28 @@
+# vim: set ft=Ansible ts=2
+
+
+- name: Create containers configuration paths
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  loop:
+    - "{{ jpclipffel_container_config_root_path }}"
+    - "{{ jpclipffel_container_config_registries_path }}"
+  tags: [never, setup]
+
+
+- name: Setup containers registries configuration
+  ansible.builtin.template:
+    src: "containers-registries.ansible.conf.j2"
+    dest: "{{ jpclipffel_container_config_registries_file }}"
+    mode: 0644
+  tags: [never, setup]
+
+# ---
+
+- name: Remove containers registries configuration
+  ansible.builtin.file:
+    path: "{{ jpclipffel_container_config_registries_file }}"
+    state: absent
+  tags: [never, teardown, remove]

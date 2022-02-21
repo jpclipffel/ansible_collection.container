@@ -1,0 +1,7 @@
+# Containers configuration paths
+jpclipffel_container_config_root_path: "/etc/containers"
+jpclipffel_container_config_registries_path: "{{ jpclipffel_container_config_root_path }}/registries.conf.d"
+
+# Registries configuration path and content
+jpclipffel_container_config_registries_file: "{{ jpclipffel_container_config_registries_path }}/containers-registries.ansible.conf"
+jpclipffel_container_config_registries: ""
