@@ -1,0 +1,6 @@
+# code: language=Ansible insertSpaces=true tabSize=2
+
+- include_tasks:
+    file: "{{ ansible_system | lower }}_{{ ansible_distribution | lower }}.yml"
+  tags:
+    - always
