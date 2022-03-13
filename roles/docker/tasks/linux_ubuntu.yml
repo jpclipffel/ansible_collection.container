@@ -61,6 +61,7 @@
   template:
     src: "daemon.json.j2"
     dest: "{{ docker_base_daemon_path }}"
+    mode: 0644
   tags: [never, setup]
 
 # - name: Install Docker compose
@@ -73,12 +74,12 @@
 #     - never
 #     - setup
 
-- name: Install Docker compose
-  copy:
-    src: "files/docker-compose-{{ _uname_s.stdout }}-{{ _uname_m.stdout }}"
-    dest: "{{ docker_base_compose_bin }}"
-    mode: 0777
-  tags: [never, setup]
+# - name: Install Docker compose
+#   copy:
+#     src: "files/docker-compose-{{ _uname_s.stdout }}-{{ _uname_m.stdout }}"
+#     dest: "{{ docker_base_compose_bin }}"
+#     mode: 0777
+#   tags: [never, setup]
 
 - name: Install Docker bindings for Python
   pip:
@@ -100,15 +101,16 @@
 - name: Propagates Docker config to Kubelet
   copy:
     remote_src: true
-    src: "{{ansible_env.HOME }}/.docker/config.json"
+    src: "{{ ansible_env.HOME }}/.docker/config.json"
     dest: "{{ item }}"
+    mode: 0644
   with_items:
     - "/var/lib/kubelet/.dockercfg"
     # - "/etc/docker/config.json"
   failed_when: false
   tags: [never, setup]
 
-- name: (re)Start and enable Docker service
+- name: Restart and enable Docker service
   service:
     name: docker
     state: restarted
