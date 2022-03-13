@@ -4,13 +4,19 @@ Ansible containers management: OCI, CRI, etc.
 
 ## Roles
 
-### `registries`
-TODO
+### `config`
 
-### `docker`
-TODO
+* Manages the system-wide container configuration.
+* Documentation: [link](roles/config/README.md)
+
+> Not suitable for Containerd which uses its own configuration: see role `jpclipffel.container.containerd`
 
 ### `containerd`
+
+* Installs and configure `containerd`
+* Documentation: [link](roles/containerd/README.md)
+
+### `docker`
 TODO
 
 ### `crio`

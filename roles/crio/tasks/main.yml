@@ -1,0 +1,7 @@
+# vim: set ft=Ansible ts=2
+
+
+- include_tasks:
+    file: "{{ ansible_system | lower }}_{{ ansible_distribution | lower }}.yml"
+  tags:
+    - always

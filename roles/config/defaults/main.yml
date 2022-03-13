@@ -3,5 +3,19 @@ jpclipffel_container_config_root_path: "/etc/containers"
 jpclipffel_container_config_registries_path: "{{ jpclipffel_container_config_root_path }}/registries.conf.d"
 
 # Registries configuration path and content
+# 'jpclipffel_container_config_registries' is a TOML string.
+# Reference: https://man.archlinux.org/man/community/containers-common/containers-registries.conf.5.en
 jpclipffel_container_config_registries_file: "{{ jpclipffel_container_config_registries_path }}/containers-registries.ansible.conf"
 jpclipffel_container_config_registries: ""
+
+# Registries authentication path and content
+# 'jpclipffel_container_config_auths' is a YAML map.
+# Reference: https://man.archlinux.org/man/community/containers-common/containers-auth.json.5.en
+# Example:
+# jpclipffel_container_config_auths:
+#   docker.io:
+#     auth: "<base64 string>"
+#   "gitlab.corp:5050":
+#     auth: "<base64 string (raw format is <username>+<PAT>)>"
+jpclipffel_container_config_auths_file: "{{ jpclipffel_container_config_registries_path }}/containers-auth.json"
+jpclipffel_container_config_auths: {}

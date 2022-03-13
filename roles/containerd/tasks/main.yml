@@ -1,9 +1,42 @@
 # vim: set ft=Ansible ts=2
 
-
 - name: Install Containerd
   ansible.builtin.package:
     name: containerd
+    state: present
+  when:
+    - not jpclipffel_container_containerd_configonly
+  tags: [never, setup]
+
+
+- name: Configure Containerd registries (directories)
+  ansible.builtin.file:
+    path: "{{ jpclipffel_container_containerd_certs_path }}/{{ __ccrd_item.key }}"
+    state: directory
+    mode: 0755
+  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
+  loop_control:
+    loop_var: "__ccrd_item"
+  tags: [never, setup]
+
+
+- name: Configure Containerd registries (hosts.toml)
+  ansible.builtin.copy:
+    dest: "{{ jpclipffel_container_containerd_certs_path }}/{{ __ccrh_item.key }}/hosts.toml"
+    content: "{{ __ccrh_item.value }}"
+    mode: 0644
+  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
+  loop_control:
+    loop_var: "__ccrh_item"
+  tags: [never, setup]
+
+
+- name: Configure Containerd registries authentication
+  ansible.builtin.blockinfile:
+    path: "{{ jpclipffel_container_containerd_config_path }}"
+    marker_begin: "BEGIN_AUTH"
+    marker_end: "END_AUTH"
+    block: "{{ jpclipffel_container_containerd_auths }}"
     state: present
   tags: [never, setup]
 
@@ -11,9 +44,31 @@
 - name: Enable Containerd service
   ansible.builtin.systemd:
     name: containerd
-    state: started
+    state: restarted
     enabled: yes
+  when:
+    - not jpclipffel_container_containerd_configonly
   tags: [never, setup]
+
+# ---
+
+- name: Deconfigure Containerd registries
+  ansible.builtin.file:
+    path: "{{ jpclipffel_container_containerd_certs_path }}/{{ __dcr_item.key }}"
+    state: absent
+  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
+  loop_control:
+    loop_var: "__dcr_item"
+  tags: [never, teardown, remove]
+
+
+- name: Deconfigure Containerd registries authentication
+  ansible.builtin.blockinfile:
+    path: "{{ jpclipffel_container_containerd_root_path }}"
+    marker_begin: "BEGIN_AUTH"
+    marker_end: "END_AUTH"
+    state: absent
+  tags: [never, teardown, remove]
 
 
 - name: Disable Containerd service
@@ -21,6 +76,8 @@
     name: containerd
     state: stopped
     enabled: no
+  when:
+    - not jpclipffel_container_containerd_configonly
   tags: [never, teardown, remove]
 
 
@@ -28,4 +85,6 @@
   ansible.builtin.package:
     name: containerd
     state: absent
+  when:
+    - not jpclipffel_container_containerd_configonly
   tags: [never, remove]
