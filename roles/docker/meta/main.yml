@@ -1,3 +1,0 @@
-galaxy_info:
-  role_name: docker_base
-  description: manage Docker installation on hosts.
