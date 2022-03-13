@@ -15,14 +15,3 @@ Ansible containers management: OCI, CRI, etc.
 
 * Installs and configure `containerd`
 * Documentation: [link](roles/containerd/README.md)
-
-### `docker`
-TODO
-
-### `crio`
-TODO
-
-### `singularity`
-TODO
-
-### `podman`
