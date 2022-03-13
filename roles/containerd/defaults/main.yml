@@ -1,0 +1,28 @@
+# Switch true to disable Containerd installation and only apply configuration.
+# Usefull for environements where Containerd is encapsulated (e.g. MicroK8s).
+jpclipffel_container_containerd_configonly: false
+
+# Containerd configuration path
+# For MicroK8s installed as a Snap, use "/var/snap/microk8s/current/args"
+jpclipffel_container_containerd_root_path: "/etc/containerd"
+
+# Containerd configuration path and content
+# For MicroK8s installed as a Snap, use path "{{ jpclipffel_container_containerd_root_path }}/containerd-template.toml"
+jpclipffel_container_containerd_config_path: "{{ jpclipffel_container_containerd_root_path }}/config.toml"
+jpclipffel_container_containerd_config: ""
+
+# Registries configuration path and content
+# 'jpclipffel_container_containerd_certs' is a YAML map.
+# Example:
+#
+# jpclipffel_container_containerd_certs:
+#   docker.io: |
+#     <hosts.toml file content>
+#   ghcr.io: |
+#     <hosts.toml file content>
+jpclipffel_container_containerd_certs_path: "{{ jpclipffel_container_containerd_root_path }}/certs.d"
+jpclipffel_container_containerd_certs: {}
+
+# Registires authentication content
+# The variable is a TOML block to be injected into Containerd config file.
+jpclipffel_container_containerd_auths: ""

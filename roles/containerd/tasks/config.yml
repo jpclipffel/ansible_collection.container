@@ -1,13 +1,5 @@
 # vim: set ft=Ansible ts=2
 
-- name: Install Containerd
-  ansible.builtin.package:
-    name: containerd
-    state: present
-  when:
-    - not jpclipffel_container_containerd_configonly
-  tags: [never, setup]
-
 
 - name: Configure Containerd registries (directories)
   ansible.builtin.file:
@@ -40,16 +32,6 @@
     state: present
   tags: [never, setup]
 
-
-- name: Enable Containerd service
-  ansible.builtin.systemd:
-    name: containerd
-    state: restarted
-    enabled: yes
-  when:
-    - not jpclipffel_container_containerd_configonly
-  tags: [never, setup]
-
 # ---
 
 - name: Deconfigure Containerd registries
@@ -69,22 +51,3 @@
     marker_end: "END_AUTH"
     state: absent
   tags: [never, teardown, remove]
-
-
-- name: Disable Containerd service
-  ansible.builtin.systemd:
-    name: containerd
-    state: stopped
-    enabled: no
-  when:
-    - not jpclipffel_container_containerd_configonly
-  tags: [never, teardown, remove]
-
-
-- name: Uninstall Containerd
-  ansible.builtin.package:
-    name: containerd
-    state: absent
-  when:
-    - not jpclipffel_container_containerd_configonly
-  tags: [never, remove]
