@@ -46,8 +46,8 @@
 
 - name: Deconfigure Containerd registries authentication
   ansible.builtin.blockinfile:
-    path: "{{ jpclipffel_container_containerd_root_path }}"
+    path: "{{ jpclipffel_container_containerd_config_path }}"
     marker_begin: "BEGIN_AUTH"
     marker_end: "END_AUTH"
     state: absent
-  tags: [never, teardown, remove]
+  tags: [never, setup]

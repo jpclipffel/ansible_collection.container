@@ -11,6 +11,9 @@ jpclipffel_container_containerd_root_path: "/etc/containerd"
 jpclipffel_container_containerd_config_path: "{{ jpclipffel_container_containerd_root_path }}/config.toml"
 jpclipffel_container_containerd_config: ""
 
+# Switch to SystemdCgroup.
+jpclipffel_container_containerd_systemdcgroup: true
+
 # Registries configuration path and content
 # 'jpclipffel_container_containerd_certs' is a YAML map.
 # Example:

@@ -1,5 +1,6 @@
 # vim: set ft=Ansible ts=2
 
+
 - name: Install Containerd
   ansible.builtin.package:
     name: containerd
@@ -9,73 +10,87 @@
   tags: [never, setup]
 
 
-- name: Configure Containerd registries (directories)
+- name: Create Containerd configuration root
   ansible.builtin.file:
-    path: "{{ jpclipffel_container_containerd_certs_path }}/{{ __ccrd_item.key }}"
+    path: "{{ jpclipffel_container_containerd_root_path }}"
     state: directory
     mode: 0755
-  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
-  loop_control:
-    loop_var: "__ccrd_item"
   tags: [never, setup]
 
 
-- name: Configure Containerd registries (hosts.toml)
-  ansible.builtin.copy:
-    dest: "{{ jpclipffel_container_containerd_certs_path }}/{{ __ccrh_item.key }}/hosts.toml"
-    content: "{{ __ccrh_item.value }}"
-    mode: 0644
-  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
-  loop_control:
-    loop_var: "__ccrh_item"
-  tags: [never, setup]
-
-
-- name: Configure Containerd registries authentication
-  ansible.builtin.blockinfile:
+- name: Get Container configuration status
+  ansible.builtin.stat:
     path: "{{ jpclipffel_container_containerd_config_path }}"
-    marker_begin: "BEGIN_AUTH"
-    marker_end: "END_AUTH"
-    block: "{{ jpclipffel_container_containerd_auths }}"
-    state: present
+  register: __containerd_config
   tags: [never, setup]
 
 
-- name: Enable Containerd service
+- name: Initialize Containerd configuration
+  ansible.builtin.shell: |
+    containerd config default > {{ jpclipffel_container_containerd_config_path }}
+  when:
+    - not __containerd_config.stat.exists
+  tags: [never, setup]
+
+
+- name: Enable SystemdCgroup
+  ansible.builtin.replace:
+    path: "{{ jpclipffel_container_containerd_config_path }}"
+    regexp: 'SystemdCgroup\s*=\s*false'
+    replace: 'SystemdCgroup = true'
+  when:
+    - jpclipffel_container_containerd_systemdcgroup is true
+  tags: [never, setup]
+
+
+- name: Configure Containerd
+  ansible.builtin.include_tasks:
+    file: config.yml
+  tags: [never, setup]
+
+
+- name: Restart and enable Containerd service
   ansible.builtin.systemd:
     name: containerd
     state: restarted
-    enabled: yes
+    enabled: true
   when:
     - not jpclipffel_container_containerd_configonly
   tags: [never, setup]
 
+
 # ---
 
-- name: Deconfigure Containerd registries
-  ansible.builtin.file:
-    path: "{{ jpclipffel_container_containerd_certs_path }}/{{ __dcr_item.key }}"
-    state: absent
-  loop: "{{ jpclipffel_container_containerd_certs | dict2items }}"
-  loop_control:
-    loop_var: "__dcr_item"
+
+- name: Deconfigure Containerd
+  ansible.builtin.include_tasks:
+    file: config.yml
   tags: [never, teardown, remove]
 
 
-- name: Deconfigure Containerd registries authentication
-  ansible.builtin.blockinfile:
-    path: "{{ jpclipffel_container_containerd_root_path }}"
-    marker_begin: "BEGIN_AUTH"
-    marker_end: "END_AUTH"
-    state: absent
-  tags: [never, teardown, remove]
+- name: Remove remaining containers
+  ansible.builtin.shell: |
+    crictl rm --all --force
+  failed_when: false
+  when:
+    - not jpclipffel_container_containerd_configonly
+  tags: [never, remove]
+
+
+- name: Remove remaining images
+  ansible.builtin.shell: |
+    crictl rmi --all
+  failed_when: false
+  when:
+    - not jpclipffel_container_containerd_configonly
+  tags: [never, remove]
 
 
 - name: Disable Containerd service
   ansible.builtin.systemd:
     name: containerd
     state: stopped
-    enabled: no
+    enabled: false
   when:
     - not jpclipffel_container_containerd_configonly
   tags: [never, teardown, remove]
