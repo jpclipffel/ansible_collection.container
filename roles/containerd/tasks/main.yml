@@ -18,7 +18,7 @@
   tags: [never, setup]
 
 
-- name: Get Container configuration status
+- name: Get Containerd configuration status
   ansible.builtin.stat:
     path: "{{ jpclipffel_container_containerd_config_path }}"
   register: __containerd_config
