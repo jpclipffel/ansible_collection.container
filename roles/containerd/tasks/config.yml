@@ -50,4 +50,4 @@
     marker_begin: "BEGIN_AUTH"
     marker_end: "END_AUTH"
     state: absent
-  tags: [never, setup]
+  tags: [never, teardown, remove]
