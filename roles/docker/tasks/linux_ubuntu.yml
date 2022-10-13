@@ -1,0 +1,57 @@
+# vim: set ft=Ansible ts=2
+
+
+- name: Cleanup legacy packages
+  ansible.builtin.apt:
+    name: "{{ jpclipffel_container_docker_ubuntu_legacy_packages }}"
+    state: absent
+  tags: [never, setup]
+
+
+- name: Add Docker GPG key
+  ansible.builtin.shell: >
+    curl -fsSL {{ jpclipffel_container_docker_ubuntu_gpg_url }}
+    | sudo gpg --yes --dearmor -o {{ jpclipffel_container_docker_ubuntu_gpg_file }}
+  tags: [never, setup]
+
+
+- name: Add Docker repository
+  ansible.builtin.shell: >
+    echo "{{ jpclipffel_container_docker_ubuntu_repo_tpl }}"
+    | sudo tee {{ jpclipffel_container_docker_ubuntu_repo_file }} > /dev/null
+  tags: [never, setup]
+
+
+- name: Install Docker
+  ansible.builtin.apt:
+    name: "{{ jpclipffel_container_docker_ubuntu_packages }}"
+    state: present
+    update_cache: yes
+  tags: [never, setup]
+
+
+- name: Setup Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: True
+  tags: [never, setup]
+
+
+# ---
+
+
+- name: Disable Docker service
+  ansible.builtin.service:
+    name: docker
+    state: stopped
+    enabled: false
+  tags: [never, teardown, remove]
+
+
+- name: Uninstall Docker
+  ansible.builtin.apt:
+    name: "{{ jpclipffel_container_docker_ubuntu_packages }}"
+    state: absent
+    update_cache: yes
+  tags: [never, remove]

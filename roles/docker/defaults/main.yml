@@ -1,0 +1,33 @@
+# vim: set ft=Ansible ts=2
+
+
+# Generic - PIP packages
+jpclipffel_container_docker_pip_packages:
+  - docker
+  - docker-compose
+
+# Ubuntu - Older Docker packages
+jpclipffel_container_docker_ubuntu_legacy_packages:
+  - docker
+  - docker-engine
+  - docker.io
+
+# Ubuntu - Docker packages
+jpclipffel_container_docker_ubuntu_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
+
+# Ubuntu - Docker GPG key url and file
+jpclipffel_container_docker_ubuntu_gpg_url: https://download.docker.com/linux/ubuntu/gpg
+
+# Ubuntu - Docker GPG key file
+jpclipffel_container_docker_ubuntu_gpg_file: /etc/apt/keyrings/docker.gpg
+
+# Ubuntu - Docker repository template and file
+jpclipffel_container_docker_ubuntu_repo_tpl: |
+  deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable
+
+# Ubuntu - Docker repository file
+jpclipffel_container_docker_ubuntu_repo_file: /etc/apt/sources.list.d/docker.list
