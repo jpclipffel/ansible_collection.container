@@ -1,0 +1,38 @@
+# vim: set ft=Ansible ts=2
+
+
+# - name: Add Docker repository key
+#   ansible.builtin.apt_key:
+#     url: https://download.docker.com/linux/ubuntu/gpg
+#     state: present
+#   tags: [never, setup]
+
+
+- name: Create APT keyrings directory
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: 0755
+  tags: [never, setup]
+
+
+- name: Add Docker keyring
+  ansible.builtin.shell: >
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg
+    | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  tags: [never, setup]
+
+
+- name: Add Docker repository
+  ansible.builtin.shell: >
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  tags: [never, setup]
+
+
+- name: Install Containerd
+  ansible.builtin.apt:
+    name: containerd.io
+    state: present
+    update_cache: true
+  tags: [never, setup]
