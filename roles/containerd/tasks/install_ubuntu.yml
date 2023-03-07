@@ -8,6 +8,22 @@
 #   tags: [never, setup]
 
 
+- name: Remove old version configuration
+  ansible.builtin.file:
+    path: "/etc/containerd/config.toml"
+    state: absent
+  when:
+    - "'containerd' in ansible_facts.packages"
+  tags: [never, setup]
+
+
+- name: Uninstall old version
+  ansible.builtin.apt:
+    name: containerd
+    state: absent
+  tags: [never, setup]
+
+
 - name: Create APT keyrings directory
   ansible.builtin.file:
     path: "/etc/apt/keyrings"
@@ -19,7 +35,7 @@
 - name: Add Docker keyring
   ansible.builtin.shell: >
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg
-    | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    | sudo gpg --yes --dearmor -o /etc/apt/keyrings/docker.gpg
   tags: [never, setup]
 
 
